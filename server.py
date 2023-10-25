@@ -18,11 +18,10 @@ while True:
         json_data = json.loads(connection.recv(1024).decode())
         input_basename = json_data['input_basename']
         input_size = json_data['input_size']
-        output_basename = json_data['output_basename']
         STREAM_RATE = 1400
         data = connection.recv(input_size if input_size <= STREAM_RATE else STREAM_RATE)
         # open file sent from client
-        with open(Path(input_basename), 'wb+') as f:
+        with open(Path(input_basename).name, 'wb+') as f:
             while data:
                 f.write(data)
                 data = connection.recv(input_size if input_size <= STREAM_RATE else STREAM_RATE)
@@ -31,7 +30,7 @@ while True:
         os.remove(f)
 
         # write file to send to client
-        with open(output_basename, 'rb') as output:
+        with open(Path(cmd_list[-1]).name, 'rb') as output:
             output.seek(0, os.SEEK_END)
             output_size = output.tell()
             output.seek(0, 0)
@@ -39,7 +38,7 @@ while True:
             _, output_extension = os.path.splitext(output.name)
 
             json_data = {
-                'output_basename': output_basename,
+                'output_basename': cmd_list[-1],
                 'output_size': output_size
             }
 
